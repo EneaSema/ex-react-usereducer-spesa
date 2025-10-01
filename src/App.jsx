@@ -1,4 +1,5 @@
 function App() {
+  // array di oggetti fornito dalla traccia
   const products = [
     { name: "Mela", price: 0.5 },
     { name: "Pane", price: 1.2 },
