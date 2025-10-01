@@ -14,18 +14,42 @@ function App() {
   //  creo stato locale addedProducts ( inizialmente array vuoto), devo importare useState
 
   const [addedProducts, setAddedProducts] = useState([]);
+  //   funione updateProductQuantity
+  function updateProductQuantity(name, quantity) {
+    setAddedProducts((curr) =>
+      curr.map((p) => (p.name === name ? { ...p, quantity } : p))
+    );
+  }
 
   function addTocart(p) {
-    const isProductAlreadyAdded = addedProducts.some(
-      (ap) => ap.name === p.name
-    );
-    if (isProductAlreadyAdded) {
+    // soluzione milestone 2
+    // const isProductAlreadyAdded = addedProducts.some(
+    //   (ap) => ap.name === p.name
+    // );
+    //  if (isProductAlreadyAdded) {
+    //   return;
+    // }
+
+    // soluzione milestone 3
+
+    const addedProduct = addedProducts.find((ap) => ap.name === p.name);
+    if (addedProduct) {
+      updateProductQuantity(addedProduct.name, addedProduct.quantity + 1);
       return;
     }
 
     setAddedProducts([...addedProducts, { ...p, quantity: 1 }]);
   }
-  console.log(addedProducts);
+  function removeFromCart(product) {
+    return setAddedProducts((curr) =>
+      curr.filter((ap) => ap.name !== product.name)
+    );
+  }
+
+  const totalToPay = addedProducts.reduce(
+    (acc, ap) => acc + ap.price * ap.quantity,
+    0
+  );
 
   return (
     <>
@@ -48,9 +72,13 @@ function App() {
               <li>
                 {ap.name} {ap.price.toFixed(2)} € {""} quantity:{``}
                 {ap.quantity}
+                <button onClick={() => removeFromCart(ap)}>
+                  Rimuovi dal Carrello
+                </button>
               </li>
             ))}
           </ul>
+          <span>Totale da pagare:{totalToPay}</span>
         </>
       )}
     </>

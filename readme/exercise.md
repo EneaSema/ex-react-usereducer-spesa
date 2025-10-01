@@ -29,3 +29,12 @@ Prezzo
 Quantità
 
 Obiettivo: L’utente può aggiungere prodotti al carrello e vedere una lista dei prodotti aggiunti.
+
+📌 Milestone 3: Modificare il carrello
+Al click successivo del bottone "Aggiungi al carrello", se il prodotto è già presente:
+Usa una funzione updateProductQuantity per incrementare la proprietà quantity del prodotto esistente.
+Per ogni prodotto nel carrello, aggiungi un bottone "Rimuovi dal carrello":
+Al click, usa una funzione removeFromCart per rimuovere il prodotto dal carrello.
+Sotto alla lista del carrello, mostra il totale da pagare:
+Calcola il totale moltiplicando il prezzo per la quantità di ogni prodotto e somma tutti i risultati.
+Obiettivo: Gestire l’aggiunta, la rimozione e il calcolo del totale del carrello in modo dinamico.
