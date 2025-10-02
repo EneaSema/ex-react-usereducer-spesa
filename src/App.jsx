@@ -12,14 +12,17 @@ function App() {
   ];
 
   //  creo stato locale addedProducts ( inizialmente array vuoto), devo importare useState
-
   const [addedProducts, setAddedProducts] = useState([]);
+
   //   funione updateProductQuantity
-  function updateProductQuantity(name, quantity) {
+  const updateProductQuantity = (name, quantity) => {
+    if (quantity < 1 || isNaN(quantity)) {
+      return;
+    }
     setAddedProducts((curr) =>
       curr.map((p) => (p.name === name ? { ...p, quantity } : p))
     );
-  }
+  };
 
   function addTocart(p) {
     // soluzione milestone 2
@@ -70,15 +73,27 @@ function App() {
           <ul>
             {addedProducts.map((ap, i) => (
               <li>
-                {ap.name} {ap.price.toFixed(2)} € {""} quantity:{``}
-                {ap.quantity}
+                <p>
+                  <input
+                    type="number"
+                    value={ap.quantity}
+                    onChange={(e) =>
+                      updateProductQuantity(ap.name, parseInt(e.target.value))
+                    }
+                  />{" "}
+                  {""}
+                  <span>
+                    x{""} {ap.name} {ap.price.toFixed(2)} € {""}{" "}
+                  </span>
+                </p>
+
                 <button onClick={() => removeFromCart(ap)}>
                   Rimuovi dal Carrello
                 </button>
               </li>
             ))}
           </ul>
-          <span>Totale da pagare:{totalToPay}</span>
+          <span>Totale da pagare:{totalToPay.toFixed(2)}€</span>
         </>
       )}
     </>
