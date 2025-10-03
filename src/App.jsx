@@ -1,6 +1,47 @@
 // importo useState
 
-import { useState } from "react";
+import { useReducer } from "react";
+
+function cartReducer(addedProducts, action) {
+  switch (action.type) {
+    case `ADD_ITEM`:
+      const addedProduct = addedProducts.find(
+        (ap) => ap.name === action.payload.name
+      );
+
+      // soluzione milestone 2
+      // const isProductAlreadyAdded = addedProducts.some(
+      //   (ap) => ap.name === p.name
+      // );
+      //  if (isProductAlreadyAdded) {
+      //   return;
+      // }
+
+      // soluzione milestone 3
+
+      if (addedProduct) {
+        action.payload.quantity = addedProduct.quantity + 1;
+      } else {
+        return [...addedProducts, { ...action.payload, quantity: 1 }];
+      }
+
+    case `UPDATE_QUANTITY`:
+      if (action.payload.quantity < 1 || isNaN(action.payload.quantity)) {
+        return addedProducts;
+      }
+      return addedProducts.map((p) =>
+        p.name === action.payload.name
+          ? { ...p, quantity: action.payload.quantity }
+          : p
+      );
+
+    case `REMOVE_ITEM`:
+      return addedProducts.filter((ap) => ap.name !== action.payload);
+
+    default:
+      return addedProducts;
+  }
+}
 
 function App() {
   // array di oggetti fornito dalla traccia
@@ -12,42 +53,9 @@ function App() {
   ];
 
   //  creo stato locale addedProducts ( inizialmente array vuoto), devo importare useState
-  const [addedProducts, setAddedProducts] = useState([]);
+  const [addedProducts, dispatchCart] = useReducer(cartReducer, []);
 
   //   funione updateProductQuantity
-  const updateProductQuantity = (name, quantity) => {
-    if (quantity < 1 || isNaN(quantity)) {
-      return;
-    }
-    setAddedProducts((curr) =>
-      curr.map((p) => (p.name === name ? { ...p, quantity } : p))
-    );
-  };
-
-  function addTocart(p) {
-    // soluzione milestone 2
-    // const isProductAlreadyAdded = addedProducts.some(
-    //   (ap) => ap.name === p.name
-    // );
-    //  if (isProductAlreadyAdded) {
-    //   return;
-    // }
-
-    // soluzione milestone 3
-
-    const addedProduct = addedProducts.find((ap) => ap.name === p.name);
-    if (addedProduct) {
-      updateProductQuantity(addedProduct.name, addedProduct.quantity + 1);
-      return;
-    }
-
-    setAddedProducts([...addedProducts, { ...p, quantity: 1 }]);
-  }
-  function removeFromCart(product) {
-    return setAddedProducts((curr) =>
-      curr.filter((ap) => ap.name !== product.name)
-    );
-  }
 
   const totalToPay = addedProducts.reduce(
     (acc, ap) => acc + ap.price * ap.quantity,
@@ -62,7 +70,11 @@ function App() {
         {products.map((p, i) => (
           <li key={i}>
             {p.name} {p.price.toFixed(2)} €{" "}
-            <button onClick={() => addTocart(p)}>Aggiungi al Carrello</button>
+            <button
+              onClick={() => dispatchCart({ action: `ADD_ITEM`, payload: p })}
+            >
+              Aggiungi al Carrello
+            </button>
           </li>
         ))}
       </ul>
@@ -78,7 +90,13 @@ function App() {
                     type="number"
                     value={ap.quantity}
                     onChange={(e) =>
-                      updateProductQuantity(ap.name, parseInt(e.target.value))
+                      dispatchCart({
+                        type: `UPDATE_QUANTITY`,
+                        payload: {
+                          name: ap.name,
+                          quantity: parseInt(e.target.value),
+                        },
+                      })
                     }
                   />{" "}
                   {""}
@@ -87,7 +105,11 @@ function App() {
                   </span>
                 </p>
 
-                <button onClick={() => removeFromCart(ap)}>
+                <button
+                  onClick={() =>
+                    dispatchCart({ type: `REMOVE_ITEM`, payload: ap.name })
+                  }
+                >
                   Rimuovi dal Carrello
                 </button>
               </li>
