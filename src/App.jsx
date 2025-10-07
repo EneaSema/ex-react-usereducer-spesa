@@ -16,18 +16,37 @@ export default function App() {
 
   console.log("addedProduct inizio", addedProducts);
 
-  const addToCart = (p) => {
-    const isProdcutAlreadyAdded = addedProducts.some(
-      (pf) => pf.name === p.name
+  const updateProductQuantity = (name, quantity) => {
+    setAddedProducts((curr) =>
+      curr.map((p) => (p.name === name ? { ...p, quantity } : p))
     );
-    if (isProdcutAlreadyAdded) {
+  };
+
+  const addToCart = (p) => {
+    // soluzione milestone 2
+    // const isProdcutAlreadyAdded = addedProducts.some(
+    //   (pf) => pf.name === p.name
+    // );
+    // if (isProdcutAlreadyAdded) {
+    //   updateProductQuantity(p);
+    // }
+    const isProdcutAdded = addedProducts.find((pf) => pf.name === p.name);
+    if (isProdcutAdded) {
+      updateProductQuantity(isProdcutAdded.name, isProdcutAdded.quantity + 1);
       return;
     }
-
     setAddedProducts([...addedProducts, { ...p, quantity: 1 }]);
   };
 
   console.log("addedProduct aggiornato", addedProducts);
+
+  const removeToCart = (ap) => {
+    setAddedProducts((curr) => curr.filter((p) => p.name !== ap.name));
+  };
+
+  const totalToPay = addedProducts.reduce((acc, ap) => {
+    return acc + ap.price * ap.quantity;
+  }, 0);
 
   return (
     <>
@@ -39,7 +58,7 @@ export default function App() {
           return (
             <li key={i}>
               <span>
-                {p.name} {p.price.toFixed(2)} €{" "}
+                {p.name} ({p.price.toFixed(2)} )€{" "}
                 <button onClick={() => addToCart(p)}>
                   Aggiungi al carrello
                 </button>
@@ -57,12 +76,16 @@ export default function App() {
               return (
                 <li key={i}>
                   <span>
-                    {ap.name} {ap.price.toFixed(2)} € {ap.quantity}
+                    {ap.name} {ap.price.toFixed(2)} € {ap.quantity} {``}
+                    <button onClick={() => removeToCart(ap)}>
+                      Rimuovi dal carrello
+                    </button>
                   </span>
                 </li>
               );
             })}
           </ul>
+          <p>Costo del carrello: {totalToPay.toFixed(2)} €</p>
         </>
       )}
     </>
