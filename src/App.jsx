@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 export default function App() {
   // milestone 1
   // array fornito
@@ -8,20 +10,61 @@ export default function App() {
     { name: "Pasta", price: 0.7 },
   ];
 
+  // milestone 2
+
+  const [addedProducts, setAddedProducts] = useState([]);
+
+  console.log("addedProduct inizio", addedProducts);
+
+  const addToCart = (p) => {
+    const isProdcutAlreadyAdded = addedProducts.some(
+      (pf) => pf.name === p.name
+    );
+    if (isProdcutAlreadyAdded) {
+      return;
+    }
+
+    setAddedProducts([...addedProducts, { ...p, quantity: 1 }]);
+  };
+
+  console.log("addedProduct aggiornato", addedProducts);
+
   return (
     <>
       <h1>EX - Carrello della spesa</h1>
+
+      <h2>Prodotti tra cui scegliere</h2>
       <ul>
         {products.map((p, i) => {
           return (
             <li key={i}>
               <span>
-                {p.name} {p.price.toFixed(2)} €
+                {p.name} {p.price.toFixed(2)} €{" "}
+                <button onClick={() => addToCart(p)}>
+                  Aggiungi al carrello
+                </button>
               </span>
             </li>
           );
         })}
       </ul>
+
+      {addedProducts.length > 0 && (
+        <>
+          <h2>Prodotti nel carrello</h2>
+          <ul>
+            {addedProducts.map((ap, i) => {
+              return (
+                <li key={i}>
+                  <span>
+                    {ap.name} {ap.price.toFixed(2)} € {ap.quantity}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
     </>
   );
 }
