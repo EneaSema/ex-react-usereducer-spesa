@@ -1,4 +1,40 @@
-import { useState } from "react";
+import { useReducer } from "react";
+
+function cartReducer(addedProducts, action) {
+  switch (action.type) {
+    case "ADD_ITEM":
+      // Logica per aggiungere un prodotto
+      const isProdcutAdded = addedProducts.find(
+        (pf) => pf.name === action.payload.name
+      );
+      if (isProdcutAdded) {
+        action.payload.quantity = isProdcutAdded.quantity + 1;
+      } else {
+        return [...addedProducts, { ...action.payload, quantity: 1 }];
+      }
+
+    case "UPDATE_QUANTITY":
+      // Logica per aggiornare la quantità
+
+      if (action.payload.quantity < 1 || isNaN(action.payload.quantity)) {
+        return addedProducts;
+      }
+
+      return addedProducts.map((p) =>
+        p.name === action.payload.name
+          ? { ...p, quantity: action.payload.quantity }
+          : p
+      );
+
+    case "REMOVE_ITEM":
+      // Logica per rimuovere un prodotto
+
+      return addedProducts.filter((p) => p.name !== action.payload.name);
+
+    default:
+      return addedProducts;
+  }
+}
 
 export default function App() {
   // milestone 1
@@ -12,7 +48,7 @@ export default function App() {
 
   // milestone 2
 
-  const [addedProducts, setAddedProducts] = useState([]);
+  const [addedProducts, dispatchProducts] = useReducer(cartReducer, []);
 
   console.log("addedProduct inizio", addedProducts);
 
@@ -23,36 +59,38 @@ export default function App() {
   //   );
   // };
 
-  const updateProductQuantity = (name, quantity) => {
-    if (quantity < 1 || isNaN(quantity)) {
-      return;
-    }
-    setAddedProducts(
-      addedProducts.map((p) => (p.name === name ? { ...p, quantity } : p))
-    );
-  };
+  // soluzione milestone 3
+  // const updateProductQuantity = (name, quantity) => {
+  //   if (quantity < 1 || isNaN(quantity)) {
+  //     return;
+  //   }
+  //   setAddedProducts(
+  //     addedProducts.map((p) => (p.name === name ? { ...p, quantity } : p))
+  //   );
+  // };
 
-  const addToCart = (p) => {
-    // soluzione milestone 2
-    // const isProdcutAlreadyAdded = addedProducts.some(
-    //   (pf) => pf.name === p.name
-    // );
-    // if (isProdcutAlreadyAdded) {
-    //   updateProductQuantity(p);
-    // }
-    const isProdcutAdded = addedProducts.find((pf) => pf.name === p.name);
-    if (isProdcutAdded) {
-      updateProductQuantity(isProdcutAdded.name, isProdcutAdded.quantity + 1);
-      return;
-    }
-    setAddedProducts([...addedProducts, { ...p, quantity: 1 }]);
-  };
+  // const addToCart = (p) => {
+  //   // soluzione milestone 2
+  //   // const isProdcutAlreadyAdded = addedProducts.some(
+  //   //   (pf) => pf.name === p.name
+  //   // );
+  //   // if (isProdcutAlreadyAdded) {
+  //   //   updateProductQuantity(p);
+  //   // }
+  //   const isProdcutAdded = addedProducts.find((pf) => pf.name === p.name);
+  //   if (isProdcutAdded) {
+  //     updateProductQuantity(isProdcutAdded.name, isProdcutAdded.quantity + 1);
+  //     return;
+  //   }
+  //   setAddedProducts([...addedProducts, { ...p, quantity: 1 }]);
+  // };
 
   console.log("addedProduct aggiornato", addedProducts);
 
-  const removeToCart = (ap) => {
-    setAddedProducts(addedProducts.filter((p) => p.name !== ap.name));
-  };
+  // soluzione milestone 3
+  // const removeToCart = (ap) => {
+  //       setAddedProducts(addedProducts.filter((p) => p.name !== ap.name));
+  //     };
 
   const totalToPay = addedProducts.reduce((acc, ap) => {
     return acc + ap.price * ap.quantity;
@@ -68,8 +106,12 @@ export default function App() {
           return (
             <li key={i}>
               <span>
-                {p.name} ({p.price.toFixed(2)} )€{" "}
-                <button onClick={() => addToCart(p)}>
+                {p.name} ({p.price.toFixed(2)}€){" "}
+                <button
+                  onClick={() =>
+                    dispatchProducts({ type: `ADD_ITEM`, payload: p })
+                  }
+                >
                   Aggiungi al carrello
                 </button>
               </span>
@@ -86,16 +128,26 @@ export default function App() {
               return (
                 <li key={i}>
                   <span>
-                    {ap.name} {ap.price.toFixed(2)} €
+                    {ap.name} ({ap.price.toFixed(2)}€)
                     <input
                       type="number"
                       value={ap.quantity}
                       onChange={(e) =>
-                        updateProductQuantity(ap.name, parseInt(e.target.value))
+                        dispatchProducts({
+                          type: `UPDATE_QUANTITY`,
+                          payload: {
+                            name: ap.name,
+                            quantity: parseInt(e.target.value),
+                          },
+                        })
                       }
                     />{" "}
                     {``}
-                    <button onClick={() => removeToCart(ap)}>
+                    <button
+                      onClick={() =>
+                        dispatchProducts({ type: `REMOVE_ITEM`, payload: ap })
+                      }
+                    >
                       Rimuovi dal carrello
                     </button>
                   </span>
