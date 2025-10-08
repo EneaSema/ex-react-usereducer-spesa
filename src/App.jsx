@@ -16,9 +16,19 @@ export default function App() {
 
   console.log("addedProduct inizio", addedProducts);
 
+  // soluzione milestone 3
+  // const updateProductQuantity = (name, quantity) => {
+  //   setAddedProducts(
+  //     addedProducts.map((p) => (p.name === name ? { ...p, quantity } : p))
+  //   );
+  // };
+
   const updateProductQuantity = (name, quantity) => {
-    setAddedProducts((curr) =>
-      curr.map((p) => (p.name === name ? { ...p, quantity } : p))
+    if (quantity < 1 || isNaN(quantity)) {
+      return;
+    }
+    setAddedProducts(
+      addedProducts.map((p) => (p.name === name ? { ...p, quantity } : p))
     );
   };
 
@@ -41,7 +51,7 @@ export default function App() {
   console.log("addedProduct aggiornato", addedProducts);
 
   const removeToCart = (ap) => {
-    setAddedProducts((curr) => curr.filter((p) => p.name !== ap.name));
+    setAddedProducts(addedProducts.filter((p) => p.name !== ap.name));
   };
 
   const totalToPay = addedProducts.reduce((acc, ap) => {
@@ -76,7 +86,15 @@ export default function App() {
               return (
                 <li key={i}>
                   <span>
-                    {ap.name} {ap.price.toFixed(2)} € {ap.quantity} {``}
+                    {ap.name} {ap.price.toFixed(2)} €
+                    <input
+                      type="number"
+                      value={ap.quantity}
+                      onChange={(e) =>
+                        updateProductQuantity(ap.name, parseInt(e.target.value))
+                      }
+                    />{" "}
+                    {``}
                     <button onClick={() => removeToCart(ap)}>
                       Rimuovi dal carrello
                     </button>
